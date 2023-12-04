@@ -135,7 +135,7 @@ def extract_transcript_from_youtube_url(url):
         return plain_text_transcript
     except Exception as e:
         print("An error occurred:", e)
-        return None
+        return e
     
 
 def determine_input_type(input_source: str) -> str:
