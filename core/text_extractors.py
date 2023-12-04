@@ -33,24 +33,23 @@ def extract_text_from_url(url: str) -> str:
         return "Unsupported URL content type\n"
 
 
-def extract_text_from_local_file(file_path: str) -> str:
+def extract_text_from_local_file(file_content: bytes, file_name: str) -> str:
     """
-    Extracts text from a local file. 
-    Supported file types are PDF, DOCX, CSV, TXT, and HTML.
-    
-    :param file_path: Path to the local file.
+    Extracts text from a local file content (PDF, DOCX, CSV, TXT, or HTML).
+
+    :param file_content: Content of the local file as bytes.
+    :param file_name: Name of the local file.
     :return: Extracted text from the file.
     """
-    _, file_extension = os.path.splitext(file_path)
+    _, file_extension = os.path.splitext(file_name)
     if file_extension == '.pdf':
-        return extract_text_from_pdf(file_path)
+        return extract_text_from_pdf(io.BytesIO(file_content))
     elif file_extension == '.docx':
-        return extract_text_from_docx(file_path)
+        return extract_text_from_docx(io.BytesIO(file_content))
     elif file_extension in ['.csv', '.txt']:
-        return extract_text_from_text_file(file_path)
+        return extract_text_from_text_file(io.BytesIO(file_content))
     elif file_extension == '.html':
-        with open(file_path, 'r', encoding='utf-8') as file:
-            html_content = file.read()
+        html_content = file_content.decode('utf-8')
         return extract_text_from_html(html_content)
     else:
         return "Unsupported local file type\n"
@@ -161,7 +160,7 @@ def determine_input_type(input_source: str) -> str:
 
     return 'unknown'
 
-def extract_text(input_source: str) -> str:
+def extract_text(input_source: Union[str, bytes]) -> str:
     """
     Automatically extracts text from various input types such as URLs, local files, or YouTube URLs.
 
@@ -169,6 +168,10 @@ def extract_text(input_source: str) -> str:
     :return: Extracted text from the input source or an error message if the input type is unknown.
     """
     try:
+        if isinstance(input_source, bytes):
+            # If input_source is bytes, assume it's file content
+            return extract_text_from_local_file(input_source)
+        
         input_type = determine_input_type(input_source)
 
         if input_type == 'url':

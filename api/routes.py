@@ -1,14 +1,23 @@
-from fastapi import APIRouter, HTTPException, UploadFile, Form
+from fastapi import APIRouter, HTTPException, UploadFile, Form, File
 from core.text_extractors import extract_text, determine_input_type
+
 
 router = APIRouter()
 
 @router.post("/extract-text")
-async def extract_text_from_source(request_data: dict):
-    input_source = request_data.get("input_source", "")  # Extract input_source from the request_data dictionary
+async def extract_text_from_source(file: UploadFile = File(None), input_source: str = Form(None)):
+    if not file and not input_source:
+        raise HTTPException(status_code=400, detail="Either 'file' or 'input_source' must be provided.")
+
     try:
-        # Call your extract_text function with input_source
-        extracted_text = extract_text(input_source)
+        if file:
+            # Check if it's a valid local file (PDF, DOCX, TXT, CSV, HTML)
+            file_content = await file.read()
+            extracted_text = extract_text(file_content, file.filename)
+        elif input_source:
+            # Call your extract_text function with input_source
+            extracted_text = extract_text(input_source)
+
         return {"text": extracted_text}
     except Exception as e:
         # Handle exceptions appropriately, e.g., return an error response
