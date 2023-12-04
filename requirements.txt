@@ -1,0 +1,13 @@
+
+python-docx
+beautifulsoup4
+bs4
+docx
+PyPDF2
+requests
+validators
+youtube-transcript-api
+fastapi[all]
+uvicorn
+httpie
+pytest
