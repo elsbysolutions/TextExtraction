@@ -6,7 +6,7 @@ docx
 PyPDF2
 requests
 validators
-youtube-transcript-api
+youtube-transcript-api==0.6.1
 fastapi[all]
 uvicorn
 httpie
